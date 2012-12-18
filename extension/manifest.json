@@ -1,0 +1,21 @@
+{
+  "manifest_version": 2,
+  "name": "NYT Paywall Buster",
+  "version": "1.3",
+  "description": "disables NYT paywall.",
+
+  "icons": { "128": "icon.png" },
+
+  "background": {
+    "scripts": ["bg.js"],
+    "persistent": true
+  },
+  
+  "content_scripts": [{
+    "matches": ["http://*.nytimes.com/*"],
+    "js" : ["content.js"]
+  }],
+ "permissions": ["tabs"],
+
+ "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
+}
