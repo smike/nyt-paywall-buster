@@ -9,6 +9,33 @@ _gaq.push(['_trackPageview']);
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
+chrome.storage.sync.get({'notifiedOfBreakage': false}, function(items) {
+  if (!items['notifiedOfBreakage']) {
+    var notification = webkitNotifications.createNotification(
+      null, // icon url
+      '', // notification title
+      'Extension being disabled due to bug.' // notification body text
+    );
+
+    var setFlag = function() {
+      console.log('setting');
+      chrome.storage.sync.set({'notifiedOfBreakage': true});
+    };
+    notification.onclose = setFlag;
+    notification.onclick = setFlag;
+    // Then show the notification.
+    notification.show();
+
+    // in case it was acknowledged on another machine.
+    chrome.storage.onChanged.addListener(function(changes, namespace) {
+      if (changes['notifiedOfBreakage']) {
+        console.log('onChanged');
+        notification.cancel();
+      }
+    });
+  }
+});
+
 chrome.extension.onMessage.addListener(
   function(message, sender, sendResponse) {
     if ('redirect' in message) {
