@@ -12,7 +12,7 @@
   },
 
   "content_scripts": [{
-    "matches": ["http://disabled=*.nytimes.com/*"],
+    "matches": ["http://*.nytimes-disabled.com/*"],
     "js" : ["content.js"]
   }],
 
