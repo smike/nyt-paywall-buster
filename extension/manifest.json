@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "NYT Paywall Buster",
-  "version": "1.4",
+  "version": "1.4.1",
   "description": "disables NYT paywall.",
 
   "icons": { "128": "icon.png" },
