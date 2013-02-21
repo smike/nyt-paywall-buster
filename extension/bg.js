@@ -9,27 +9,30 @@ _gaq.push(['_trackPageview']);
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
-chrome.storage.sync.get({'notifiedOfBreakage': false}, function(items) {
-  if (!items['notifiedOfBreakage']) {
+chrome.storage.sync.get({'notifiedOfFix': false}, function(items) {
+  if (!items['notifiedOfFix']) {
     var notification = webkitNotifications.createNotification(
-      null, // icon url
+      '', // icon url
       '', // notification title
-      'Extension being disabled due to bug.' // notification body text
+      'Extension fixed and reenabled!' // notification body text
     );
 
+    var acked_locally = false;
     var setFlag = function() {
-      console.log('setting');
-      chrome.storage.sync.set({'notifiedOfBreakage': true});
+      acked_locally = true;
+      chrome.storage.sync.set({'notifiedOfFix': true});
+      chrome.extension.sendMessage({action: 'ack_notified_of_fix'});
     };
     notification.onclose = setFlag;
     notification.onclick = setFlag;
     // Then show the notification.
     notification.show();
+    chrome.extension.sendMessage({action: 'notified_of_fix'});
 
     // in case it was acknowledged on another machine.
     chrome.storage.onChanged.addListener(function(changes, namespace) {
-      if (changes['notifiedOfBreakage']) {
-        console.log('onChanged');
+      if (!acked_locally && changes['notifiedOfFix']) {
+        chrome.extension.sendMessage({action: 'auto-ack_notified_of_fix'});
         notification.cancel();
       }
     });
@@ -38,10 +41,15 @@ chrome.storage.sync.get({'notifiedOfBreakage': false}, function(items) {
 
 chrome.extension.onMessage.addListener(
   function(message, sender, sendResponse) {
-    if ('redirect' in message) {
-      chrome.tabs.update(sender.tab.id, {url: message.redirect});
-    }
-
-    _gaq.push(['_trackEvent', 'bust-listener', message.action, message.value]);
+    _gaq.push(['_trackEvent', 'bust-listener2', message.action, message.value]);
   }
 );
+
+chrome.webRequest.onBeforeRequest.addListener(
+    function(details) {
+      console.log("Blocking " + details.url);
+      chrome.extension.sendMessage({action: 'mtr_blocked'});
+      return {cancel: true};
+    },
+    {urls: ["*://graphics8.nytimes.com/js/mtr.js"]},
+    ["blocking"]);
