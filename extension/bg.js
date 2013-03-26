@@ -1,6 +1,6 @@
 // Track action using Google Analytics
 var _gaq = _gaq || [];
-_gaq.push(['_setAccount', 'UA-11020659-5']);
+_gaq.push(['_setAccount', secrets.ga_account_number]);
 _gaq.push(['_trackPageview']);
 
 (function() {
